@@ -6,4 +6,9 @@ export const routes: Routes = [
     loadComponent: () =>
       import('./repos/repos.component').then((m) => m.ReposComponent),
   },
+  {
+    path: 'todos',
+    loadComponent: () =>
+      import('./todos/todos.component').then((m) => m.ToDosComponent),
+  }
 ];
