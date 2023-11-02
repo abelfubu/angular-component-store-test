@@ -1,8 +1,8 @@
-import { ComponentStore, tapResponse } from "@ngrx/component-store";
-import { ToDo } from "../models/to-do.model";
-import { Injectable, inject } from "@angular/core";
-import { AppService } from "../app.service";
-import { switchMap } from 'rxjs';
+import { ComponentStore, tapResponse } from '@ngrx/component-store';
+import { ToDo } from '../models/to-do.model';
+import { Injectable, inject } from '@angular/core';
+import { AppService } from '../app.service';
+import { switchMap, tap } from 'rxjs';
 
 interface ToDosState {
   toDos: ToDo[];
@@ -21,10 +21,23 @@ export class ToDosStore extends ComponentStore<ToDosState> {
   //EFFECT
   readonly getToDos = this.effect((trigger$) =>
     trigger$.pipe(
-      switchMap(() => 
+      switchMap(() =>
         this.service.getToDos().pipe(
           tapResponse({
             next: (todos) => this.updateToDos(todos),
+            error: console.log,
+          })
+        )
+      )
+    )
+  );
+
+  readonly put = this.effect<ToDo>((todo$) =>
+    todo$.pipe(
+      switchMap((todo) =>
+        this.service.updateTodos(todo).pipe(
+          tapResponse({
+            next: (todo) => this.updateOneTodo(todo),
             error: console.log,
           })
         )
@@ -36,5 +49,10 @@ export class ToDosStore extends ComponentStore<ToDosState> {
   readonly updateToDos = this.updater((state, todos: ToDo[]) => ({
     ...state,
     toDos: todos,
+  }));
+
+  readonly updateOneTodo = this.updater((state, todo: ToDo) => ({
+    ...state,
+    toDos: state.toDos.map((t) => (t.id === todo.id ? todo : t)),
   }));
 }
