@@ -17,8 +17,13 @@ export class AppService {
   }
 
   getToDos(): Observable<ToDo[]> {
-    return this.http.get<ToDo[]>(
-      `https://jsonplaceholder.typicode.com/todos`
+    return this.http.get<ToDo[]>(`https://jsonplaceholder.typicode.com/todos`);
+  }
+
+  updateTodos(todo: ToDo): Observable<ToDo> {
+    return this.http.put<ToDo>(
+      `https://jsonplaceholder.typicode.com/todos/${todo.id}`,
+      todo
     );
   }
 }
