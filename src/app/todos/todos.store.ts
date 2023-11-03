@@ -1,8 +1,10 @@
-import { ComponentStore, tapResponse } from '@ngrx/component-store';
-import { ToDo } from '../models/to-do.model';
 import { Injectable, inject } from '@angular/core';
+import { ComponentStore, tapResponse } from '@ngrx/component-store';
+import { DialogService } from 'primeng/dynamicdialog';
+import { filter, switchMap } from 'rxjs';
 import { AppService } from '../app.service';
-import { switchMap, tap } from 'rxjs';
+import { ToDo } from '../models/to-do.model';
+import { EditTodoComponent } from './edit-todo.component';
 
 interface ToDosState {
   toDos: ToDo[];
@@ -11,6 +13,8 @@ interface ToDosState {
 @Injectable()
 export class ToDosStore extends ComponentStore<ToDosState> {
   private readonly service = inject(AppService);
+  private readonly dialogService = inject(DialogService);
+
   constructor() {
     super({ toDos: [] });
   }
@@ -53,6 +57,33 @@ export class ToDosStore extends ComponentStore<ToDosState> {
             next: (todo) => this.deleteTodos(todo),
             error: console.log,
           })
+        )
+      )
+    )
+  );
+
+  readonly edit = this.effect<ToDo>((todo$) =>
+    todo$.pipe(
+      // Pide el todo a la API
+      switchMap((todo) =>
+        this.service.getOne(todo.id).pipe(
+          // Abre el modal y le pasa el todo
+          switchMap((todo) =>
+            this.dialogService
+              .open(EditTodoComponent, { data: todo, header: '✏️ Edit todo' })
+              // Filtro por si cierran el modal con la X
+              .onClose.pipe(filter(Boolean))
+          ),
+          // Guarda el todo en la API
+          switchMap((title) =>
+            this.service.updateTodos({ ...todo, title }).pipe(
+              tapResponse({
+                // Actualizo el estado
+                next: (todo) => this.updateOneTodo(todo),
+                error: console.log,
+              })
+            )
+          )
         )
       )
     )

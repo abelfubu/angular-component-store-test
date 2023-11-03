@@ -32,4 +32,10 @@ export class AppService {
       `https://jsonplaceholder.typicode.com/todos/${todo.id}`
     );
   }
+
+  getOne(id: number): Observable<ToDo> {
+    return this.http.get<ToDo>(
+      `https://jsonplaceholder.typicode.com/todos/${id}`
+    );
+  }
 }
