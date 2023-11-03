@@ -45,6 +45,19 @@ export class ToDosStore extends ComponentStore<ToDosState> {
     )
   );
 
+  readonly delete = this.effect<ToDo>((todo$) =>
+    todo$.pipe(
+      switchMap((todo) =>
+        this.service.deleteTodos(todo).pipe(
+          tapResponse({
+            next: (todo) => this.deleteTodos(todo),
+            error: console.log,
+          })
+        )
+      )
+    )
+  );
+
   //UPDATER
   readonly updateToDos = this.updater((state, todos: ToDo[]) => ({
     ...state,
@@ -54,5 +67,10 @@ export class ToDosStore extends ComponentStore<ToDosState> {
   readonly updateOneTodo = this.updater((state, todo: ToDo) => ({
     ...state,
     toDos: state.toDos.map((t) => (t.id === todo.id ? todo : t)),
+  }));
+
+  readonly deleteTodos = this.updater((state, todo: ToDo) => ({
+    ...state,
+    toDos: state.toDos.filter((t) => t.id !== todo.id),
   }));
 }
