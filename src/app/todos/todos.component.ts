@@ -17,6 +17,7 @@ import { ToDo } from '../models/to-do.model';
           (change)="updateTodos(todo)"
         />
         {{ todo.title }}
+        <button (click)="deleteTodos(todo)">🗑</button>
       </li>
     </ul>
   </div>`,
@@ -30,5 +31,9 @@ export class ToDosComponent implements OnInit {
 
   updateTodos(todo: ToDo): void {
     this.store.put({ ...todo, completed: !todo.completed });
+  }
+
+  deleteTodos(todo: ToDo): void {
+    this.store.deleteTodos(todo);
   }
 }
