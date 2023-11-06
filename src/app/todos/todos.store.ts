@@ -89,6 +89,29 @@ export class ToDosStore extends ComponentStore<ToDosState> {
     )
   );
 
+  readonly create = this.effect((trigger$) =>
+    trigger$.pipe(
+      switchMap(
+        () =>
+          this.dialogService.open(EditTodoComponent, {
+            data: { title: '' },
+            header: 'Create todo',
+          }).onClose
+      ),
+      filter(Boolean),
+      switchMap((title) =>
+        this.service
+          .createOne({ id: 0, title, userId: 0, completed: false })
+          .pipe(
+            tapResponse({
+              next: (todo) => this.createNewTodo(todo),
+              error: console.log,
+            })
+          )
+      )
+    )
+  );
+
   //UPDATER
   readonly updateToDos = this.updater((state, todos: ToDo[]) => ({
     ...state,
@@ -103,5 +126,10 @@ export class ToDosStore extends ComponentStore<ToDosState> {
   readonly deleteTodos = this.updater((state, todo: ToDo) => ({
     ...state,
     toDos: state.toDos.filter((t) => t.id !== todo.id),
+  }));
+
+  readonly createNewTodo = this.updater((state, todo: ToDo) => ({
+    ...state,
+    toDos: state.toDos.concat(todo),
   }));
 }

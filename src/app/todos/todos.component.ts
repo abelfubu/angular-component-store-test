@@ -10,6 +10,7 @@ import { ToDosStore } from './todos.store';
   providers: [ToDosStore],
   template: `
     <div>
+      <button (click)="store.create()">➕</button>
       <ul>
         <li *ngFor="let todo of store.toDos$ | async">
           <input

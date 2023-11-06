@@ -38,4 +38,11 @@ export class AppService {
       `https://jsonplaceholder.typicode.com/todos/${id}`
     );
   }
+
+  createOne(todo: ToDo): Observable<ToDo> {
+    return this.http.post<ToDo>(
+      `https://jsonplaceholder.typicode.com/todos`,
+      todo
+    );
+  }
 }
